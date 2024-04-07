@@ -12,12 +12,14 @@
 
   <!-- Adding the modules, API key, and map constant needed for a full screen map app -->
   <script>
-  
+
     require([
      "esri/config",
       "esri/Map",
-      "esri/views/MapView"
-    ], function (esriConfig,Map, MapView) {
+      "esri/views/MapView",
+      "esri/Graphic",  
+      "esri/layers/GraphicsLayer"   
+    ], function (esriConfig,Map, MapView, Graphic, GraphicsLayer) {
 
       esriConfig.apiKey = "AAPK48b9a2ca3e404b41bc418de0c5098a9bdsC1--6umjqp5lHybY0XcVoG0I3sumZaOrAREl3KzcrdNvjRPlsbDzPrwE_UtkBH";
       const map = new Map({
@@ -30,6 +32,43 @@
           zoom: 13, // Zoom level
           container: "viewDiv" // Div element
         });
+
+        const graphicsLayer = new GraphicsLayer();  
+        map.add(graphicsLayer);
+
+        const point = { //Create a point  
+        type: "point",  
+        longitude: -97.750689,    //long lat of Stevie Ray Vaughan Statue
+        latitude: 30.263098
+        };
+
+        const SimpleMarkerSymbol = {
+        type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
+        style: "square",
+        color: "blue",
+        size: "8px",  // pixels
+        outline: {  // autocasts as new SimpleLineSymbol()
+        color: [ 255, 255, 0 ],
+        width: 1  // points
+        }};
+
+        const popupTemplate = {
+          title: "{Name}",
+          content: "{Description}"
+        }
+        const attributes = {
+          Name: "Stevie Ray Vaughan Statue",
+          Description: "A bronze sculpture of Stevie Ray Vaughan by Ralph Helmick"
+        }
+        const pointGraphic = new Graphic({  
+        geometry: point,  
+        symbol: SimpleMarkerSymbol, 
+        attributes: attributes,
+        popupTemplate: popupTemplate
+
+        });
+        graphicsLayer.add(pointGraphic);
+
     });
   </script>
 
