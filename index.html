@@ -18,8 +18,10 @@
       "esri/Map",
       "esri/views/MapView",
       "esri/Graphic",  
-      "esri/layers/GraphicsLayer"   
-    ], function (esriConfig,Map, MapView, Graphic, GraphicsLayer) {
+      "esri/layers/GraphicsLayer",
+      "esri/geometry/Polyline",
+      "esri/layers/FeatureLayer"
+    ], function (esriConfig,Map, MapView, Graphic, GraphicsLayer,Polyline, FeatureLayer) {
 
       esriConfig.apiKey = "AAPK48b9a2ca3e404b41bc418de0c5098a9bdsC1--6umjqp5lHybY0XcVoG0I3sumZaOrAREl3KzcrdNvjRPlsbDzPrwE_UtkBH";
       const map = new Map({
@@ -68,7 +70,167 @@
 
         });
         graphicsLayer.add(pointGraphic);
+        const paths = [
+        [  // first path
+        [-97.06138,32.837,5],
+        [-97.06133,32.836,6],
+        [-97.06124,32.834,7]
+        ], [  // second path
+        [-97.06326,32.759],
+        [-97.06298,32.755]
+        ]
+        ];
+        
+        const polyline = {
+        type: "polyline", // autocasts as new Polyline()
+        paths: [[-111.3, 52.68], [-98, 49.5], [-93.94, 29.89]]
+        };
+        const lineSymbol = {
+         type: "simple-line", // autocasts as new SimpleLineSymbol()
+         color: [226, 119, 40], // RGB color values as an array
+         width: 4
+          }; 
+          const lineAtt = {
+            Name: "Keystone Pipeline", // The name of the pipeline
+            Owner: "TransCanada", // The owner of the pipeline
+            Length: "3,456 km" // The length of the pipeline
+          };
 
+          const polylineGraphic = new Graphic({
+          geometry: polyline, // Add the geometry created in step 3
+          symbol: lineSymbol, // Add the symbol created in step 4
+          attributes: lineAtt // Add the attributes created in step 5
+          });
+          view.graphics.add(polylineGraphic);
+          // Create a polygon geometry
+        const polygon = {
+          type: "polygon", // autocasts as new Polygon()
+          rings: [[-64.78, 32.3], [-66.07, 18.45], [-80.21, 25.78], [-64.78, 32.3]]
+        };
+
+        // Create a symbol for rendering the graphic
+        const fillSymbol = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: [227, 139, 79, 0.8],
+          outline: {
+            // autocasts as new SimpleLineSymbol()
+            color: [255, 255, 255],
+            width: 1
+          }
+        };
+
+        // Add the geometry and symbol to a new graphic
+        const polygonGraphic = new Graphic({
+          geometry: polygon,
+          symbol: fillSymbol
+        });
+        view.graphics.add(polygonGraphic);
+        
+          // Define a pop-up for usaeduLayer
+          const popupEduusa = {
+            "title": "EDUs",
+            "content": "<b>Name:</b> {INSTNM}<br><b>Type of Enrollment:</b> {C21ENPRF}<br> <b>Size and Setting of University:</b> {C21SZSET}<br>"
+          }
+          const popupairport = {
+            "title": "USA Airports",
+            "content": "<b>Name:</b> {Fac_Name}<br><b>Type:</b> {Fac_Type}<br> "
+          }
+
+          //adding the Const for the feature layer
+          const usaeduLayer = new FeatureLayer({
+          url: "https://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/Colleges_and_Universities_View/FeatureServer/0",
+          //adding the popup here
+          popupTemplate: popupEduusa
+          });
+          map.add(usaeduLayer);
+        const airportRenderer = {
+        "type": "simple",
+        "symbol": {
+         "type": "picture-marker",
+         "url": "https://sounny.github.io/agol/outline_local_airport_black_24dp.png",
+         "width": "18px",
+         "height": "18px"
+                }
+              }
+              //const to make the airport labels
+          const airportLabels = {
+            symbol: {
+              type: "text",
+              color: "#FFFFFF",
+              haloColor: "#5E8D74",
+              haloSize: "2px",
+              font: {
+                size: "12px",
+                family: "Noto Sans",
+                style: "italic",
+                weight: "normal"
+              }
+            },
+            labelPlacement: "above-center",
+            labelExpressionInfo: {
+              expression: "$feature.Fac_Name"
+            }
+          };
+          //adding the feature layer to the map
+          
+          const US_Airports_ghghh = new FeatureLayer({
+          url: "https://services.arcgis.com/LBbVDC0hKPAnLRpO/arcgis/rest/services/US_Airports_ghghh/FeatureServer/0",
+          renderer:airportRenderer,
+          //adding the popup here
+          popupTemplate: popupairport,
+          definitionExpression: "Fac_Type = 'AIRPORT'", //adding sql to filter for airports
+          labelingInfo: [airportLabels] //adding the labels
+          });
+
+          //adding the feature layer to the map
+          map.add(US_Airports_ghghh);
+
+          const heliLabels = {
+            symbol: {
+              type: "text",
+              color: "#0000ff",
+              haloColor: " #0096FF",
+              haloSize: "2px",
+              font: {
+                size: "12px",
+                family: "Noto Sans",
+                style: "italic",
+                weight: "normal"
+              }
+            },
+            labelPlacement: "above-center",
+            labelExpressionInfo: {
+              expression: "$feature.Fac_Name"
+            }
+          };
+          //adding the feature layer to the map
+          
+          const popupheli = {
+            "title": "USA Helicopters",
+            "content": "<b>Name:</b> {Fac_Name}<br><b>Type:</b> {Fac_Type}<br> "
+          }
+
+          const US_Airports_helicopter = new FeatureLayer({
+          url: "https://services.arcgis.com/LBbVDC0hKPAnLRpO/arcgis/rest/services/US_Airports_ghghh/FeatureServer/0",
+          renderer: {
+          type: "simple", 
+          symbol: {
+          type: "web-style", // autocasts as new WebStyleSymbol()
+              styleName: "Esri2DPointSymbolsStyle",
+              name: "aerial-tram"  
+            }
+           },
+          //adding the popup here
+          popupTemplate: popupheli,
+          definitionExpression: "Fac_Type = 'HELIPORT'", //adding sql to filter for airports
+          labelingInfo: [heliLabels] //adding the labels
+          });
+
+          //adding the feature layer to the map
+          map.add(US_Airports_helicopter);
+          
+         
+          
     });
   </script>
 
